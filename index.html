@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Vedant Vaibhav Gharat | Data and ML Galaxy</title>
+<meta name="description" content="Interactive 3D portfolio of Vedant Vaibhav Gharat. MSc Data Analytics, machine learning projects, research and leadership as constellations.">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Unbounded:wght@400;700&display=swap">
+<style>
+:root{--bg:#05060f;--ink:#eef0ff;--soft:#9aa0c8;--glow:#7cf0ff;--hot:#ff8a5c;--violet:#9b7cff}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;overflow:hidden;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+canvas{position:fixed;inset:0;width:100%;height:100%;display:block}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:2px solid var(--glow);outline-offset:3px}
+.top{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 18px;z-index:5;pointer-events:none}
+.top>*{pointer-events:auto}
+.brand{font-family:Unbounded,system-ui,sans-serif;font-weight:700;font-size:.95rem;background:none;border:0;padding:0;letter-spacing:.02em}
+nav{display:flex;gap:6px;flex-wrap:wrap}
+nav button,.chip{background:rgba(20,22,48,.55);border:1px solid rgba(160,170,255,.3);border-radius:999px;padding:6px 14px;font-size:.85rem;backdrop-filter:blur(8px);text-decoration:none;color:var(--ink)}
+nav button:hover,nav button[aria-current=true],.chip:hover{border-color:var(--glow);color:var(--glow)}
+#hero{position:fixed;left:0;right:0;bottom:0;text-align:center;z-index:4;pointer-events:none;padding:70px 18px calc(60px + env(safe-area-inset-bottom,0px));background:linear-gradient(transparent,rgba(5,6,15,.55) 60%);transition:opacity .6s}
+#hero h1{font-family:Unbounded,system-ui,sans-serif;font-size:clamp(1.5rem,4.2vw,3.2rem);margin:0;line-height:1.1}
+#hero p{margin:12px auto 0;max-width:34em;color:#d3d6fb;font-size:clamp(.95rem,2vw,1.15rem)}
+body:not([data-view=home]) #hero{opacity:0}
+.cname,.node{position:fixed;left:0;top:0;z-index:3;display:none;will-change:transform}
+.cname.show,.node.show{display:block}
+.cname button{background:none;border:0;font-family:Unbounded,system-ui,sans-serif;font-size:clamp(.9rem,2vw,1.4rem);color:var(--ink);padding:10px 14px;text-shadow:0 0 18px var(--glow),0 0 2px #000;transform:translate(-50%,-50%);white-space:nowrap}
+.cname button:hover{color:var(--glow)}
+.node button{display:flex;align-items:center;gap:10px;background:none;border:0;padding:8px;transform:translate(-9px,-50%);white-space:nowrap}
+.node i{width:14px;height:14px;border-radius:50%;background:var(--glow);box-shadow:0 0 14px 4px rgba(124,240,255,.8),0 0 40px 10px rgba(124,240,255,.3);flex:none}
+.node.dim i{background:var(--violet);box-shadow:0 0 12px 3px rgba(155,124,255,.6);opacity:.7}
+.node.goal i{background:var(--hot);box-shadow:0 0 16px 5px rgba(255,138,92,.8)}
+.node span{font-size:.85rem;background:rgba(5,6,15,.72);border:1px solid rgba(160,170,255,.22);border-radius:999px;padding:3px 10px;backdrop-filter:blur(4px)}
+.node.l button{flex-direction:row-reverse;transform:translate(calc(-100% + 9px),-50%)}
+.node button:hover i{transform:scale(1.4)}
+#panel{position:fixed;right:18px;bottom:calc(18px + env(safe-area-inset-bottom,0px));width:min(380px,calc(100vw - 36px));background:rgba(12,14,36,.82);border:1px solid rgba(160,170,255,.35);border-radius:16px;padding:18px 20px;z-index:6;backdrop-filter:blur(14px);display:none}
+#panel.on{display:block}
+#panel h2{font-family:Unbounded,system-ui,sans-serif;font-size:1.1rem;margin:0 0 4px}
+#panel .tag{color:var(--glow);font-size:.8rem;margin:0 0 10px}
+#panel p{margin:0 0 10px;line-height:1.55;color:#d9dcff}
+#panel .links a{margin-right:12px;color:var(--glow)}
+#close{position:absolute;top:8px;right:10px;background:none;border:0;font-size:1.3rem;color:var(--soft)}
+.hud{position:fixed;left:18px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:5;display:flex;gap:8px;align-items:center;color:var(--soft);font-size:.8rem;flex-wrap:wrap}
+#nogl{display:none;position:fixed;inset:0;place-items:center;text-align:center;padding:30px;z-index:9;background:var(--bg)}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+body:not([data-view=home]) .hud span{display:none}
+@media (max-width:640px){.top{padding:10px 12px}.hud span{display:none}}
+</style>
+</head>
+<body data-view="home">
+<canvas id="gl" aria-hidden="true"></canvas>
+<div id="nogl"><p>This page needs WebGL. Open it in a recent Chrome, Safari or Firefox.</p></div>
+<header class="top">
+  <button class="brand" id="home">Vedant Vaibhav Gharat</button>
+  <nav id="nav" aria-label="Constellations"></nav>
+  <div id="links" style="display:flex;gap:6px"></div>
+</header>
+<section id="hero"><h1>Data, ML and a few thousand stars</h1><p>MSc Computer Science (Data Analytics) at the University of Galway. Move your cursor through the galaxy, then pick a constellation.</p></section>
+<div id="stage"></div>
+<aside id="panel" role="dialog" aria-live="polite" aria-label="Details"><button id="close" aria-label="Close">×</button><h2 id="pt"></h2><p class="tag" id="pg"></p><p id="px"></p><div class="links" id="pl"></div></aside>
+<div class="hud"><button class="chip" id="lite" aria-pressed="false">Lite mode: off</button><span>Esc closes panels. Tab moves between stars.</span></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/* ===== EDIT THIS BLOCK to update your portfolio ===== */
+const CONTENT = {
+  email: "gharatvedant7@gmail.com",
+  links: [
+    // { label: "GitHub", url: "https://github.com/your-username" },
+    // { label: "LinkedIn", url: "https://www.linkedin.com/in/your-id" },
+    // { label: "Resume", url: "resume.pdf" },
+  ],
+  constellations: [
+    { id: "skills", label: "Skills", center: [-6, 0.4, -2.5], nodes: [
+      { name: "Languages", tag: "Skills", text: "Python, C, C++, SQL." },
+      { name: "ML and AI", tag: "Skills", text: "TensorFlow, scikit-learn, OpenCV." },
+      { name: "Data", tag: "Skills", text: "Pandas, NumPy, PostgreSQL, Excel, Matplotlib." },
+      { name: "Dashboards", tag: "Skills", text: "Power BI, Tableau, data visualization." },
+      { name: "Cloud and containers", tag: "Skills", text: "AWS, Docker." },
+      { name: "Tools", tag: "Skills", text: "Git, Jupyter." }
+    ]},
+    { id: "projects", label: "Projects", center: [4.8, 0.9, -5], nodes: [
+      { name: "Kisan Mitra", tag: "Final-year major project, 2025 to 2026", text: "AI farm companion. I owned the end-to-end ML pipeline, from dataset curation to deployment, integrating predictive models into a low-bandwidth chat interface for rural accessibility. Supports 500+ concurrent users with 99.9% uptime, and cuts manual administrative overhead by 40%." },
+      { name: "Disease module", tag: "Kisan Mitra", text: "MobileNetV2 transfer learning. 89.6% accuracy and 0.89 macro F1 across five classes, 38 ms per image." },
+      { name: "Yield module", tag: "Kisan Mitra", text: "Random Forest regression: R2 0.87 and RMSE 3.41 q/ha on 1,200 records, with a confidence score reported alongside each prediction. Reduces manual yield estimation time by 60%." },
+      { name: "Paper and patent", tag: "COMNET 2026", text: "Research paper published at the COMNET 2026 conference. Patent application published by the Indian Patent Office, application no. 202621096149 (application stage, not yet granted)." },
+      { name: "Student mental health early warning", tag: "Research, Jan to Jul 2024", text: "Predictive analytics framework that identifies student stress indicators to support proactive intervention and service resource planning. Processed 5,000+ student records with 95% prediction accuracy and sub-100 ms inference latency for real-time monitoring." },
+    ]},
+    { id: "experience", label: "Experience", center: [7, -0.4, 0.5], nodes: [
+      { name: "IT Intern, RCF", tag: "Jun to Jul 2023, Mumbai", text: "Rashtriya Chemicals and Fertilizers Ltd." },
+      { name: "Near Miss Reporting app", tag: "RCF", text: "Developed and deployed a web application that centralized incident tracking for 500+ users and cut manual data processing time by 30% through automated validation." },
+      { name: "Faster reporting", tag: "RCF", text: "Reduced incident reporting latency by 40% by automating data validation and streamlining the submission workflow, enabling real-time safety trend analysis for management." },
+      { name: "Cross-functional work", tag: "RCF", text: "Collaborated with 5 departments to identify operational bottlenecks and turn complex process challenges into technical requirements for automated reporting." }
+    ]},
+    { id: "education", label: "Education", center: [-3.8, -0.8, 2.5], nodes: [
+      { name: "MSc, University of Galway", tag: "Sept 2026 to Aug 2027, Ireland", text: "MSc Computer Science (Data Analytics). Applying predictive analytics to infrastructure datasets to optimize resource allocation and improve service delivery efficiency for sustainable utility systems." },
+      { name: "B.Tech, Mumbai University", tag: "2022 to 2026", text: "Electronics and Computer Science at Shah and Anchor Kutchhi Engineering College. CGPA 8.17 out of 10 (Semester 8 SGPA 10.00). Full transcript available on request." }
+    ]},
+    { id: "leadership", label: "Leadership", center: [-1.5, 0.5, -8.5], nodes: [
+      { name: "General Co-ordinator", tag: "2025 to 2026, SAKEC", text: "Led a 40-member council across technical, sports and cultural departments and delivered a college-wide event for 4,000+ attendees." },
+      { name: "Sports Co-ordinator", tag: "2024 to 2025, SAKEC", text: "Coordinated a three-day sports event with diverse student committees and external service partners: 16 disciplines and logistics for 1,000+ participants." }
+    ]}
+  ]
+};
+/* ===== end of editable block ===== */
+
+const $ = (s) => document.querySelector(s);
+const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+let lite = reduce || innerWidth < 700;
+
+let renderer;
+try { renderer = new THREE.WebGLRenderer({ canvas: $("#gl"), antialias: false, alpha: false }); }
+catch (e) { $("#nogl").style.display = "grid"; throw e; }
+const scene = new THREE.Scene();
+const cam = new THREE.PerspectiveCamera(55, 1, 0.1, 200);
+const HOME = new THREE.Vector3(0, 8.5, 15), HOME_LOOK = new THREE.Vector3(0, 0, 0);
+let camTarget = HOME.clone(), lookTarget = HOME_LOOK.clone(), look = HOME_LOOK.clone();
+cam.position.copy(HOME);
+
+const uni = { uTime:{value:0}, uPixel:{value:1}, uMouse:{value:new THREE.Vector2(9,9)}, uAspect:{value:1}, uPush:{value:1} };
+const mat = new THREE.ShaderMaterial({
+  uniforms: uni, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending,
+  vertexShader: `
+    attribute float aSize; attribute vec3 aColor; attribute float aSeed;
+    uniform float uTime, uPixel, uAspect, uPush; uniform vec2 uMouse;
+    varying vec3 vColor; varying float vAlpha;
+    void main(){
+      vec3 p = position; float r = length(p.xz);
+      float a = uTime * 0.14 / (1.0 + r * 0.35);
+      float c = cos(a), s = sin(a);
+      p.xz = mat2(c,-s,s,c) * p.xz;
+      p.y += sin(uTime * 0.7 + aSeed * 30.0) * 0.04;
+      vec4 mv = modelViewMatrix * vec4(p,1.0);
+      vec4 clip = projectionMatrix * mv;
+      vec2 ndc = clip.xy / clip.w;
+      vec2 d = ndc - uMouse; d.x *= uAspect;
+      float dist = length(d);
+      float f = exp(-dist*dist*16.0) * uPush;
+      vec2 dir = dist > 0.0001 ? d / dist : vec2(0.0);
+      vec2 off = (dir*0.9 + vec2(-dir.y, dir.x)*0.7) * f * 0.14; off.x /= uAspect;
+      ndc += off;
+      gl_Position = vec4(ndc * clip.w, clip.z, clip.w);
+      gl_PointSize = min(aSize * uPixel * (30.0 / -mv.z) * (1.0 + f*2.0), 16.0 * uPixel);
+      vColor = aColor; vAlpha = 0.5 + f * 0.5;
+    }`,
+  fragmentShader: `
+    varying vec3 vColor; varying float vAlpha;
+    void main(){
+      float d = length(gl_PointCoord - 0.5); if (d > 0.5) discard;
+      float a = smoothstep(0.5, 0.0, d);
+      gl_FragColor = vec4(vColor * (0.5 + a), a * vAlpha);
+    }`
+});
+let points;
+function build(n) {
+  if (points) { scene.remove(points); points.geometry.dispose(); }
+  const pos = new Float32Array(n*3), col = new Float32Array(n*3), size = new Float32Array(n), seed = new Float32Array(n);
+  const inner = new THREE.Color(1.0, 0.72, 0.45), outer = new THREE.Color(0.3, 0.5, 1.0), vio = new THREE.Color(0.65, 0.4, 1.0), tmp = new THREE.Color();
+  const sgn = () => (Math.random() < 0.5 ? -1 : 1);
+  for (let i = 0; i < n; i++) {
+    const r = Math.pow(Math.random(), 1.5) * 13;
+    const ang = (i % 4) / 4 * Math.PI * 2 + r * 0.5;
+    const sp = 0.12 + r * 0.07;
+    pos[i*3]   = Math.cos(ang) * r + Math.pow(Math.random(), 3) * sgn() * sp * 3;
+    pos[i*3+1] = Math.pow(Math.random(), 3) * sgn() * sp * 1.1 * (1 - r / 16);
+    pos[i*3+2] = Math.sin(ang) * r + Math.pow(Math.random(), 3) * sgn() * sp * 3;
+    tmp.copy(inner).lerp(outer, Math.min(r / 12, 1)); if (Math.random() < 0.2) tmp.lerp(vio, 0.6);
+    col[i*3] = tmp.r; col[i*3+1] = tmp.g; col[i*3+2] = tmp.b;
+    size[i] = 0.5 + Math.random() * 1.8 + (r < 2 ? 0.8 : 0); seed[i] = Math.random();
+  }
+  const g = new THREE.BufferGeometry();
+  g.setAttribute("position", new THREE.BufferAttribute(pos, 3));
+  g.setAttribute("aColor", new THREE.BufferAttribute(col, 3));
+  g.setAttribute("aSize", new THREE.BufferAttribute(size, 1));
+  g.setAttribute("aSeed", new THREE.BufferAttribute(seed, 1));
+  points = new THREE.Points(g, mat); points.frustumCulled = false; scene.add(points);
+}
+
+/* constellations: 3D positions, lines, DOM */
+const stage = $("#stage"), items = [];
+CONTENT.constellations.forEach((c, ci) => {
+  const ctr = new THREE.Vector3(...c.center), n = c.nodes.length, pts = [];
+  const title = document.createElement("div"); title.className = "cname show";
+  title.innerHTML = `<button>${esc(c.label)}</button>`; title.firstChild.onclick = () => go(c.id); stage.appendChild(title);
+  const nodes = c.nodes.map((nd, i) => {
+    const a = i / n * Math.PI * 2 + ci, rad = 1.7 + (i % 2) * 1.2;
+    const p = new THREE.Vector3(ctr.x + Math.cos(a) * rad, ctr.y + ((i % 3) - 1) * 0.4, ctr.z + Math.sin(a) * rad * 0.7);
+    pts.push(p);
+    const el = document.createElement("div"); el.className = "node" + (nd.dim ? " dim" : "") + (nd.goal ? " goal" : "") + (Math.cos(a) < 0 ? " l" : "");
+    el.innerHTML = `<button><i></i><span>${esc(nd.name)}</span></button>`; el.firstChild.onclick = () => openPanel(nd);
+    stage.appendChild(el); return { el, p };
+  });
+  const lg = new THREE.BufferGeometry().setFromPoints(pts.flatMap((p, i) => i ? [pts[i-1], p] : []));
+  const lm = new THREE.LineBasicMaterial({ color: 0x7cf0ff, transparent: true, opacity: 0.2 });
+  scene.add(new THREE.LineSegments(lg, lm));
+  items.push({ c, ctr, title, nodes, lm });
+});
+
+let active = null; const v = new THREE.Vector3();
+function go(id) {
+  closePanel(); active = id; document.body.dataset.view = id || "home";
+  const it = items.find((x) => x.c.id === id);
+  if (it) { const sx = innerWidth > 900 ? 1.8 : 0; camTarget.copy(it.ctr).add(new THREE.Vector3(sx, 2.8, 6.5)); lookTarget.copy(it.ctr).add(new THREE.Vector3(sx, 0, 0)); }
+  else { camTarget.copy(HOME); lookTarget.copy(HOME_LOOK); }
+  if (reduce) { cam.position.copy(camTarget); look.copy(lookTarget); }
+  document.querySelectorAll("#nav button").forEach((b) => b.setAttribute("aria-current", b.dataset.id === String(id)));
+  items.forEach((x) => { x.title.classList.toggle("show", !id); x.nodes.forEach((n) => n.el.classList.toggle("show", x.c.id === id)); });
+}
+function openPanel(nd) {
+  $("#pt").textContent = nd.name; $("#pg").textContent = nd.tag; $("#px").textContent = nd.text;
+  $("#pl").innerHTML = (nd.links || []).map((l) => `<a href="${esc(l.url)}">${esc(l.label)}</a>`).join("");
+  $("#panel").classList.add("on");
+}
+function closePanel() { $("#panel").classList.remove("on"); }
+$("#close").onclick = closePanel;
+addEventListener("keydown", (e) => { if (e.key === "Escape") { $("#panel").classList.contains("on") ? closePanel() : go(null); } });
+
+/* nav + links */
+$("#nav").innerHTML = CONTENT.constellations.map((c) => `<button data-id="${c.id}">${esc(c.label)}</button>`).join("");
+$("#nav").addEventListener("click", (e) => { const b = e.target.closest("button"); if (b) go(b.dataset.id); });
+$("#home").onclick = () => go(null);
+$("#links").innerHTML = CONTENT.links.map((l) => `<a class="chip" href="${esc(l.url)}">${esc(l.label)}</a>`).join("") + (CONTENT.email ? `<a class="chip" id="mail" href="mailto:${esc(CONTENT.email)}">${esc(CONTENT.email)}</a>` : "");
+if ($("#mail")) $("#mail").addEventListener("click", (e) => { e.preventDefault(); const m = $("#mail"); const done = () => { m.textContent = "Copied: " + CONTENT.email; setTimeout(() => { m.textContent = CONTENT.email; }, 2200); }; try { navigator.clipboard.writeText(CONTENT.email).then(done, () => {}); } catch (x) {} });
+
+/* lite toggle, resize, mouse */
+function setLite(on) {
+  lite = on; $("#lite").textContent = "Lite mode: " + (on ? "on" : "off"); $("#lite").setAttribute("aria-pressed", on);
+  renderer.setPixelRatio(on ? 1 : Math.min(devicePixelRatio, 2)); uni.uPixel.value = renderer.getPixelRatio();
+  build(on ? 14000 : 60000);
+}
+$("#lite").onclick = () => setLite(!lite);
+function resize() { renderer.setSize(innerWidth, innerHeight, false); cam.aspect = innerWidth / innerHeight; cam.updateProjectionMatrix(); uni.uAspect.value = cam.aspect; }
+addEventListener("resize", resize);
+addEventListener("pointermove", (e) => uni.uMouse.value.set(e.clientX / innerWidth * 2 - 1, -(e.clientY / innerHeight) * 2 + 1));
+addEventListener("pointerleave", () => uni.uMouse.value.set(9, 9));
+
+/* loop */
+const clock = new THREE.Clock(); let mx = 0, my = 0;
+function frame() {
+  const t = clock.getElapsedTime(); uni.uTime.value = reduce ? 0 : t;
+  mx += ((uni.uMouse.value.x > 5 ? 0 : uni.uMouse.value.x) - mx) * 0.04; my += ((uni.uMouse.value.y > 5 ? 0 : uni.uMouse.value.y) - my) * 0.04;
+  if (!reduce) { cam.position.lerp(camTarget, 0.045); look.lerp(lookTarget, 0.045); }
+  cam.position.x += mx * 0.0; cam.lookAt(look.x + mx * 0.6, look.y + my * 0.4, look.z);
+  renderer.render(scene, cam);
+  const w = innerWidth, h = innerHeight;
+  const place = (el, p) => {
+    v.copy(p).project(cam);
+    if (v.z > 1 || Math.abs(v.x) > 1.2 || Math.abs(v.y) > 1.2) { el.style.visibility = "hidden"; return; }
+    el.style.visibility = "visible"; el.style.transform = `translate(${(v.x * 0.5 + 0.5) * w}px,${(-v.y * 0.5 + 0.5) * h}px)`;
+  };
+  items.forEach((x) => {
+    place(x.title, x.ctr); x.lm.opacity += ((x.c.id === active ? 0.75 : 0.18) - x.lm.opacity) * 0.08;
+    if (x.c.id === active) x.nodes.forEach((n) => place(n.el, n.p));
+  });
+  requestAnimationFrame(frame);
+}
+resize(); setLite(lite); go(null); frame();
+</script>
+</body>
+</html>
